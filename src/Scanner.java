@@ -5,7 +5,8 @@ public class Scanner {
     private final String input;
     private int current;
 
-    private static final Map<String, TokenType> KEYWORDS = new HashMap<>();
+    private static final Map<String, TokenType> KEYWORDS =
+        new HashMap<>();
 
     static {
         KEYWORDS.put("let", TokenType.LET);
@@ -13,7 +14,7 @@ public class Scanner {
     }
 
     public Scanner(String input) {
-        this.input = input;
+        this.input = input == null ? "" : input;
         this.current = 0;
     }
 
@@ -67,10 +68,14 @@ public class Scanner {
             advance();
         }
 
-        String lexeme = input.substring(start, current);
+        String lexeme =
+            input.substring(start, current);
 
         TokenType type =
-            KEYWORDS.getOrDefault(lexeme, TokenType.IDENT);
+            KEYWORDS.getOrDefault(
+                lexeme,
+                TokenType.IDENT
+            );
 
         return new Token(type, lexeme);
     }
@@ -102,15 +107,25 @@ public class Scanner {
             case '-':
                 return new Token(TokenType.MINUS, "-");
 
+            case '*':
+                return new Token(TokenType.STAR, "*");
+
+            case '/':
+                return new Token(TokenType.SLASH, "/");
+
             case '=':
                 return new Token(TokenType.EQUAL, "=");
 
             case ';':
-                return new Token(TokenType.SEMICOLON, ";");
+                return new Token(
+                    TokenType.SEMICOLON,
+                    ";"
+                );
 
             default:
                 throw new RuntimeException(
-                    "Erro léxico: caractere inesperado '" + c + "'."
+                    "Erro léxico: caractere inesperado '"
+                    + c + "'."
                 );
         }
     }

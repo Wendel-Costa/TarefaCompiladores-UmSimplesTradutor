@@ -6,6 +6,8 @@ public class Command {
         POP,
         ADD,
         SUB,
+        MUL,
+        DIV,
         PRINT
     }
 
@@ -31,6 +33,14 @@ public class Command {
 
     public static Command sub() {
         return new Command(Type.SUB, null);
+    }
+
+    public static Command mul() {
+        return new Command(Type.MUL, null);
+    }
+
+    public static Command div() {
+        return new Command(Type.DIV, null);
     }
 
     public static Command print() {

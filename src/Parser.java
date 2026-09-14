@@ -4,7 +4,9 @@ import java.util.List;
 public class Parser {
     private final Scanner scanner;
     private Token lookahead;
-    private final List<Command> commands = new ArrayList<>();
+
+    private final List<Command> commands =
+        new ArrayList<>();
 
     public Parser(String input) {
         scanner = new Scanner(input);
@@ -39,7 +41,8 @@ public class Parser {
 
         match(TokenType.LET);
 
-        String variable = lookahead.getLexeme();
+        String variable =
+            lookahead.getLexeme();
 
         match(TokenType.IDENT);
 
@@ -47,7 +50,9 @@ public class Parser {
 
         expression();
 
-        commands.add(Command.pop(variable));
+        commands.add(
+            Command.pop(variable)
+        );
 
         match(TokenType.SEMICOLON);
     }
@@ -58,24 +63,28 @@ public class Parser {
 
         expression();
 
-        commands.add(Command.print());
+        commands.add(
+            Command.print()
+        );
 
         match(TokenType.SEMICOLON);
     }
 
     private void expression() {
 
-        operand();
+        term();
 
         while (
             lookahead.getType() == TokenType.PLUS ||
             lookahead.getType() == TokenType.MINUS
         ) {
-            TokenType operator = lookahead.getType();
+
+            TokenType operator =
+                lookahead.getType();
 
             advance();
 
-            operand();
+            term();
 
             if (operator == TokenType.PLUS) {
                 commands.add(Command.add());
@@ -85,20 +94,41 @@ public class Parser {
         }
     }
 
-    private void operand() {
+    private void term() {
 
-        if (lookahead.getType() == TokenType.NUMBER) {
+        factor();
 
-            commands.add(
-                Command.push(lookahead.getLexeme())
-            );
+        while (
+            lookahead.getType() == TokenType.STAR ||
+            lookahead.getType() == TokenType.SLASH
+        ) {
+
+            TokenType operator =
+                lookahead.getType();
 
             advance();
 
-        } else if (lookahead.getType() == TokenType.IDENT) {
+            factor();
+
+            if (operator == TokenType.STAR) {
+                commands.add(Command.mul());
+            } else {
+                commands.add(Command.div());
+            }
+        }
+    }
+
+    private void factor() {
+
+        if (
+            lookahead.getType() == TokenType.NUMBER ||
+            lookahead.getType() == TokenType.IDENT
+        ) {
 
             commands.add(
-                Command.push(lookahead.getLexeme())
+                Command.push(
+                    lookahead.getLexeme()
+                )
             );
 
             advance();
@@ -116,7 +146,10 @@ public class Parser {
             advance();
         } else {
             throw new RuntimeException(
-                "Erro sintático."
+                "Erro sintático: esperado "
+                + expected
+                + ", encontrado "
+                + lookahead.getType()
             );
         }
     }
