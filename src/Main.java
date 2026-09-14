@@ -1,6 +1,9 @@
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Teste");
+        String input = "6+7-2+1";
+
+        Parser parser = new Parser(input.getBytes());
+        parser.parse();
     }
 }
