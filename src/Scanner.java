@@ -22,14 +22,30 @@ public class Scanner {
         }
     }
 
-    public char next() {
-        char currentChar = peek();
+    public Token nextToken() {
+        char c = peek();
 
-        if (currentChar == '\0') {
-            return '\0';
+        if (c == '\0') {
+            return new Token(TokenType.FIM, "");
         }
 
         advance();
-        return currentChar;
+
+        switch (c) {
+            case '+':
+                return new Token(TokenType.PLUS, "+");
+
+            case '-':
+                return new Token(TokenType.MINUS, "-");
+
+            default:
+                if (Character.isDigit(c)) {
+                    return new Token(TokenType.EOF, String.valueOf(c));
+                }
+
+                throw new RuntimeException(
+                    "Erro léxico: caractere inesperado '" + c + "'."
+                );
+        }
     }
 }
