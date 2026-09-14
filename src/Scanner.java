@@ -1,7 +1,15 @@
+import java.util.HashMap;
+import java.util.Map;
 
 public class Scanner {
     private final String input;
     private int current;
+
+    private static final Map<String, TokenType> KEYWORDS = new HashMap<>();
+
+    static {
+        KEYWORDS.put("let", TokenType.LET);
+    }
 
     public Scanner(String input) {
         this.input = input;
@@ -36,9 +44,34 @@ public class Scanner {
             advance();
         }
 
+        return new Token(
+            TokenType.NUMBER,
+            input.substring(start, current)
+        );
+    }
+
+    private boolean isAlpha(char c) {
+        return Character.isLetter(c) || c == '_';
+    }
+
+    private boolean isAlphaNumeric(char c) {
+        return isAlpha(c) || Character.isDigit(c);
+    }
+
+    private Token identifier() {
+
+        int start = current;
+
+        while (isAlphaNumeric(peek())) {
+            advance();
+        }
+
         String lexeme = input.substring(start, current);
 
-        return new Token(TokenType.NUMBER, lexeme);
+        TokenType type =
+            KEYWORDS.getOrDefault(lexeme, TokenType.IDENT);
+
+        return new Token(type, lexeme);
     }
 
     public Token nextToken() {
@@ -55,6 +88,10 @@ public class Scanner {
             return number();
         }
 
+        if (isAlpha(c)) {
+            return identifier();
+        }
+
         advance();
 
         switch (c) {
@@ -63,6 +100,12 @@ public class Scanner {
 
             case '-':
                 return new Token(TokenType.MINUS, "-");
+
+            case '=':
+                return new Token(TokenType.EQUAL, "=");
+
+            case ';':
+                return new Token(TokenType.SEMICOLON, ";");
 
             default:
                 throw new RuntimeException(

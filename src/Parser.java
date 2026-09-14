@@ -9,15 +9,43 @@ public class Parser {
     }
 
     public void parse() {
-        expression();
 
-        if (lookahead.getType() != TokenType.FIM) {
-            throw new RuntimeException("Erro sintático.");
+        while (lookahead.getType() != TokenType.FIM) {
+            statement();
         }
     }
 
+    private void statement() {
+
+        if (lookahead.getType() == TokenType.LET) {
+            letStatement();
+        } else {
+            throw new RuntimeException(
+                "Erro sintático: comando esperado."
+            );
+        }
+    }
+
+    private void letStatement() {
+
+        match(TokenType.LET);
+
+        String variable = lookahead.getLexeme();
+
+        match(TokenType.IDENT);
+
+        match(TokenType.EQUAL);
+
+        expression();
+
+        System.out.println("pop " + variable);
+
+        match(TokenType.SEMICOLON);
+    }
+
     private void expression() {
-        number();
+
+        numberOrIdentifier();
 
         while (
             lookahead.getType() == TokenType.PLUS ||
@@ -27,7 +55,7 @@ public class Parser {
 
             advance();
 
-            number();
+            numberOrIdentifier();
 
             if (operator == TokenType.PLUS) {
                 System.out.println("add");
@@ -37,13 +65,34 @@ public class Parser {
         }
     }
 
-    private void number() {
+    private void numberOrIdentifier() {
 
-        if (lookahead.getType() == TokenType.NUMBER) {
-            System.out.println("push " + lookahead.getLexeme());
+        if (
+            lookahead.getType() == TokenType.NUMBER ||
+            lookahead.getType() == TokenType.IDENT
+        ) {
+            System.out.println(
+                "push " + lookahead.getLexeme()
+            );
+
+            advance();
+
+        } else {
+            throw new RuntimeException(
+                "Erro sintático: operando esperado."
+            );
+        }
+    }
+
+    private void match(TokenType expected) {
+
+        if (lookahead.getType() == expected) {
             advance();
         } else {
-            throw new RuntimeException("Erro sintático: número esperado.");
+            throw new RuntimeException(
+                "Erro sintático: esperado " + expected +
+                ", encontrado " + lookahead.getType()
+            );
         }
     }
 
