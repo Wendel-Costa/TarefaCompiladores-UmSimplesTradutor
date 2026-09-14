@@ -1,36 +1,28 @@
 
 public class Parser {
-    private final byte[] input;
-    private int current;
+    private final Scanner scanner;
+    private char lookahead;
 
-    public Parser(byte[] input) {
-        this.input = input;
-        this.current = 0;
+    public Parser(String input) {
+        this.scanner = new Scanner(input);
+        this.lookahead = scanner.next();
     }
 
     public void parse() {
         expr();
 
-        if (peek() != '\0') {
-            throw new RuntimeException("Erro sintático: entrada inesperada.");
+        if (lookahead != '\0') {
+            throw new RuntimeException("Erro sintático.");
         }
-    }
-
-    private char peek() {
-        if (current < input.length) {
-            return (char) input[current];
-        }
-
-        return '\0';
     }
 
     private void match(char c) {
-        if (c == peek()) {
-            current++;
+        if (lookahead == c) {
+            lookahead = scanner.next();
         } else {
             throw new RuntimeException(
                 "Erro sintático: esperado '" + c +
-                "', encontrado '" + peek() + "'."
+                "', encontrado '" + lookahead + "'."
             );
         }
     }
@@ -41,13 +33,13 @@ public class Parser {
     }
 
     private void oper() {
-        if (peek() == '+') {
+        if (lookahead == '+') {
             match('+');
             digit();
             System.out.println("add");
             oper();
 
-        } else if (peek() == '-') {
+        } else if (lookahead == '-') {
             match('-');
             digit();
             System.out.println("sub");
@@ -56,11 +48,11 @@ public class Parser {
     }
 
     private void digit() {
-        if (Character.isDigit(peek())) {
-            System.out.println("push " + peek());
-            match(peek());
+        if (Character.isDigit(lookahead)) {
+            System.out.println("push " + lookahead);
+            match(lookahead);
         } else {
-            throw new RuntimeException("Erro sintático: esperado dígito.");
+            throw new RuntimeException("Erro sintático.");
         }
     }
 }
