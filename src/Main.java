@@ -8,8 +8,17 @@ public class Main {
 
         List<Command> commands = parser.parse();
 
+        System.out.println("=== TRADUÇÃO ===");
+
         for (Command command : commands) {
             System.out.println(command);
         }
+
+        System.out.println("=== EXECUÇÃO ===");
+
+        Interpreter interpreter =
+            new Interpreter();
+
+        interpreter.execute(commands);
     }
 }
