@@ -1,58 +1,53 @@
 
 public class Parser {
     private final Scanner scanner;
-    private char lookahead;
+    private Token lookahead;
 
     public Parser(String input) {
-        this.scanner = new Scanner(input);
-        this.lookahead = scanner.next();
+        scanner = new Scanner(input);
+        lookahead = scanner.nextToken();
     }
 
     public void parse() {
-        expr();
+        expression();
 
-        if (lookahead != '\0') {
+        if (lookahead.getType() != TokenType.FIM) {
             throw new RuntimeException("Erro sintático.");
         }
     }
 
-    private void match(char c) {
-        if (lookahead == c) {
-            lookahead = scanner.next();
+    private void expression() {
+        number();
+
+        while (
+            lookahead.getType() == TokenType.PLUS ||
+            lookahead.getType() == TokenType.MINUS
+        ) {
+            TokenType operator = lookahead.getType();
+
+            advance();
+
+            number();
+
+            if (operator == TokenType.PLUS) {
+                System.out.println("add");
+            } else {
+                System.out.println("sub");
+            }
+        }
+    }
+
+    private void number() {
+
+        if (lookahead.getType() == TokenType.NUMBER) {
+            System.out.println("push " + lookahead.getLexeme());
+            advance();
         } else {
-            throw new RuntimeException(
-                "Erro sintático: esperado '" + c +
-                "', encontrado '" + lookahead + "'."
-            );
+            throw new RuntimeException("Erro sintático: número esperado.");
         }
     }
 
-    private void expr() {
-        digit();
-        oper();
-    }
-
-    private void oper() {
-        if (lookahead == '+') {
-            match('+');
-            digit();
-            System.out.println("add");
-            oper();
-
-        } else if (lookahead == '-') {
-            match('-');
-            digit();
-            System.out.println("sub");
-            oper();
-        }
-    }
-
-    private void digit() {
-        if (Character.isDigit(lookahead)) {
-            System.out.println("push " + lookahead);
-            match(lookahead);
-        } else {
-            throw new RuntimeException("Erro sintático.");
-        }
+    private void advance() {
+        lookahead = scanner.nextToken();
     }
 }
