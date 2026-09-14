@@ -1,24 +1,33 @@
+import java.util.ArrayList;
+import java.util.List;
 
 public class Parser {
     private final Scanner scanner;
     private Token lookahead;
+    private final List<Command> commands = new ArrayList<>();
 
     public Parser(String input) {
         scanner = new Scanner(input);
         lookahead = scanner.nextToken();
     }
 
-    public void parse() {
+    public List<Command> parse() {
 
         while (lookahead.getType() != TokenType.FIM) {
             statement();
         }
+
+        return commands;
     }
 
     private void statement() {
 
         if (lookahead.getType() == TokenType.LET) {
             letStatement();
+
+        } else if (lookahead.getType() == TokenType.PRINT) {
+            printStatement();
+
         } else {
             throw new RuntimeException(
                 "Erro sintático: comando esperado."
@@ -38,14 +47,25 @@ public class Parser {
 
         expression();
 
-        System.out.println("pop " + variable);
+        commands.add(Command.pop(variable));
+
+        match(TokenType.SEMICOLON);
+    }
+
+    private void printStatement() {
+
+        match(TokenType.PRINT);
+
+        expression();
+
+        commands.add(Command.print());
 
         match(TokenType.SEMICOLON);
     }
 
     private void expression() {
 
-        numberOrIdentifier();
+        operand();
 
         while (
             lookahead.getType() == TokenType.PLUS ||
@@ -55,24 +75,30 @@ public class Parser {
 
             advance();
 
-            numberOrIdentifier();
+            operand();
 
             if (operator == TokenType.PLUS) {
-                System.out.println("add");
+                commands.add(Command.add());
             } else {
-                System.out.println("sub");
+                commands.add(Command.sub());
             }
         }
     }
 
-    private void numberOrIdentifier() {
+    private void operand() {
 
-        if (
-            lookahead.getType() == TokenType.NUMBER ||
-            lookahead.getType() == TokenType.IDENT
-        ) {
-            System.out.println(
-                "push " + lookahead.getLexeme()
+        if (lookahead.getType() == TokenType.NUMBER) {
+
+            commands.add(
+                Command.push(lookahead.getLexeme())
+            );
+
+            advance();
+
+        } else if (lookahead.getType() == TokenType.IDENT) {
+
+            commands.add(
+                Command.push(lookahead.getLexeme())
             );
 
             advance();
@@ -90,8 +116,7 @@ public class Parser {
             advance();
         } else {
             throw new RuntimeException(
-                "Erro sintático: esperado " + expected +
-                ", encontrado " + lookahead.getType()
+                "Erro sintático."
             );
         }
     }

@@ -9,6 +9,7 @@ public class Scanner {
 
     static {
         KEYWORDS.put("let", TokenType.LET);
+        KEYWORDS.put("print", TokenType.PRINT);
     }
 
     public Scanner(String input) {

@@ -5,6 +5,7 @@ public enum TokenType {
     NUMBER,
     IDENT,
     LET,
+    PRINT,
     EQUAL,
     SEMICOLON,
     FIM
